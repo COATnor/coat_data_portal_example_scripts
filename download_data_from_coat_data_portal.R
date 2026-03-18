@@ -109,8 +109,8 @@ download_coat_data <- function(name = name,
                                      store = store,
                                      path = paste(out.dir, filenames[i], sep = "/"),
                                      sep = ";",
-                              header = TRUE,
-                              #format = "txt"
+                                     header = TRUE,
+                                     #format = "txt"
     )
   }
   
@@ -119,7 +119,8 @@ download_coat_data <- function(name = name,
 }
 
 list_datasets <- function(COAT_key = COAT_key, 
-                         module = module) {
+                          module = module,
+                          printContents = TRUE) {
   
   ## search for all datasets of a module
   all_pkg <- package_search(q = paste0("organization:", module), rows = 1000, include_private = TRUE, as = "table")$results %>% 
@@ -127,11 +128,15 @@ list_datasets <- function(COAT_key = COAT_key,
     dplyr::select(name, version, type, status, temporal_start, temporal_end) %>% 
     dplyr::arrange(name)
   
-  print(all_pkg)
-    
+  if(printContents){
+    print(all_pkg)
+  }
+  
+  return(all_pkg) 
 }
 
-list_data_files <- function(name) {
+list_data_files <- function(name,
+                            printContents = TRUE) {
   
   ## extract the version from the dataset name
   version <- substr(name, nchar(name), nchar(name))
@@ -140,7 +145,10 @@ list_data_files <- function(name) {
   pkg <- package_search(q = list(paste("name:", name, sep = "")), fq = list(paste("version:", version, sep = "")), include_private = TRUE, as = "table")$results$resources[[1]]
   filenames_dataset <- pkg$name
   
-  print(filenames_dataset)
+  if(printContents){
+    print(filenames_dataset)
+  }
+  
   return(filenames_dataset)
 }
 
