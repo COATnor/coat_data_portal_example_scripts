@@ -34,12 +34,12 @@ if (FALSE) {  # ignore this (prevents running the example when sourcing the scri
   source("https://github.com/COATnor/data_management_scripts/blob/master/download_data_from_coat_data_portal.R?raw=TRUE")
   
   ## set up the connection to the COAT Data Portal (this is where you need your API key from data.coat.no)
-  ckanr_setup(url =  "https://data.coat.no", 
-              key = NULL)  # replace NULL with your API key (e.g. "asdf123af123") for downloading private datasets or datasets under embargo, without API key, only public datasets will be listed
-                           # the API key can be found by clicking on your name in the top right corner on data.coat.no
+  ckanr::ckanr_setup(url =  "https://data.coat.no", 
+                     key = NULL)  # replace NULL with your API key (e.g. "asdf123af123") for downloading private datasets or datasets under embargo, without API key, only public datasets will be listed
+  # the API key can be found by clicking on your name in the top right corner on data.coat.no
   
   ## list all modules (optional)
-  organization_list(as = "table")$name
+  ckanr::organization_list(as = "table")$name
   
   ## list all datasets of a module (optional)
   list_datasets(module = "climate-module")  # wirte here the module name
@@ -75,7 +75,7 @@ download_coat_data <- function(name = name,
   version <- substr(name, nchar(name), nchar(name))
   
   ## search for the dataset
-  pkg <- package_search(q = list(paste("name:", name, sep = "")), fq = list(paste("version:", version, sep = "")), include_private = TRUE)$results[[1]]
+  pkg <- ckanr::package_search(q = list(paste("name:", name, sep = "")), fq = list(paste("version:", version, sep = "")), include_private = TRUE)$results[[1]]
   urls <- pkg$resources %>% sapply("[[", "url") # get the urls to the files included in the dataset
   filenames_dataset <- pkg$resources %>% sapply("[[", "name") # get the filenames
   
@@ -105,12 +105,12 @@ download_coat_data <- function(name = name,
   mylist <- c() # empty object for the files
   
   for (i in 1:length(filenames)) {
-    mylist[[i]] <- ckan_fetch(urls2[i],
-                              store = store,
-                              path = paste(out.dir, filenames[i], sep = "/"),
-                              sep = ";",
-                              header = TRUE,
-                              #format = "txt"
+    mylist[[i]] <- ckanr::ckan_fetch(urls2[i],
+                                     store = store,
+                                     path = paste(out.dir, filenames[i], sep = "/"),
+                                     sep = ";",
+                                     header = TRUE,
+                                     #format = "txt"
     )
   }
   
@@ -119,19 +119,24 @@ download_coat_data <- function(name = name,
 }
 
 list_datasets <- function(COAT_key = COAT_key, 
-                         module = module) {
+                          module = module,
+                          printContents = TRUE) {
   
   ## search for all datasets of a module
   all_pkg <- package_search(q = paste0("organization:", module), rows = 1000, include_private = TRUE, as = "table")$results %>% 
-    mutate(status = ifelse(private, "private", "public")) %>% 
-    select(name, version, type, status, temporal_start, temporal_end) %>% 
-    arrange(name)
+    dplyr::mutate(status = ifelse(private, "private", "public")) %>% 
+    dplyr::select(name, version, type, status, temporal_start, temporal_end) %>% 
+    dplyr::arrange(name)
   
-  print(all_pkg)
-    
+  if(printContents){
+    print(all_pkg)
+  }
+  
+  return(all_pkg) 
 }
 
-list_data_files <- function(name) {
+list_data_files <- function(name,
+                            printContents = TRUE) {
   
   ## extract the version from the dataset name
   version <- substr(name, nchar(name), nchar(name))
@@ -140,7 +145,10 @@ list_data_files <- function(name) {
   pkg <- package_search(q = list(paste("name:", name, sep = "")), fq = list(paste("version:", version, sep = "")), include_private = TRUE, as = "table")$results$resources[[1]]
   filenames_dataset <- pkg$name
   
-  print(filenames_dataset)
+  if(printContents){
+    print(filenames_dataset)
+  }
+  
   return(filenames_dataset)
 }
 
