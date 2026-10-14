@@ -16,13 +16,21 @@
 install.packages("ckanr")
 # import ckanr library
 library("ckanr")
+# httr is used for the authenticated downloads below
+if (!require("httr")) install.packages("httr"); library("httr")
 
 # setup the connection to the data portal
 COAT_url<-"https://coatdemo.frafra.no/"
-# The use of an API key allows the user to access also non-public data
-ckanr_setup(url = COAT_url, key = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx")
-# Without an API key only public data can be reached
-ckanr_setup(url = COAT_url)
+# The use of an API token allows the user to access also non-public data.
+# CKAN no longer issues API keys: create a token under "Manage" -> "API tokens"
+# on your user page and paste it below. Leave it as "" to stay anonymous.
+COAT_key <- "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+ckanr_setup(url = COAT_url, key = if (COAT_key == "") NULL else COAT_key)
+# Without an API token only public data can be reached
+
+# helper for the authenticated downloads below. An empty COAT_key sends an
+# empty Authorization header, which CKAN treats as an anonymous request.
+auth_headers <- httr::add_headers(Authorization = COAT_key)
 
 # list datasets visible to current user (aka packages)
 pack<-package_list(as='table') #this will give just a list of datasat names
@@ -49,7 +57,11 @@ mod_web_pkg[[1]]$resources %>% sapply('[[','id')
 destdir<-"R://Prosjekter/COAT/Data Management/Formatted data/scripts/"
 #Give a file name for the single file to be donwloaded
 destfile<-"dwnload.txt"
-download.file(mod_web_pkg[[1]]$resources[[1]]$url,paste(destdir,destfile,sep=""))
+# download.file() sends no Authorization header, so this returns 403 for
+# private datasets. httr::GET with auth_headers() is used instead.
+httr::GET(mod_web_pkg[[1]]$resources[[1]]$url,
+          httr::write_disk(paste(destdir, destfile, sep = ""), overwrite = TRUE),
+          auth_headers)
 
 #--------download all files in a dataset-------
 # get the dataset name (which includes the version - update to a specific other version if needed)
@@ -59,7 +71,11 @@ remote_zip <- paste(paste(COAT_url,"dataset/", sep=""), dataset, "/zip", sep = "
 # Set a local destination for data download
 destination <- paste(destdir, paste(dataset,".zip",sep=""), sep = "")
 # download the zip package
-download.file(remote_zip, destination, mode="wb")
+# NB: datasets under embargo always return 403 here, the archive is assembled
+# server side without the caller's credentials. Download those file by file.
+httr::GET(remote_zip,
+          httr::write_disk(destination, overwrite = TRUE),
+          auth_headers)
 
 #----- Details about modules and users-------------
 # see details about a specific organization (=modules in COAT)
