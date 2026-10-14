@@ -28,7 +28,7 @@ COAT_key <- ""  # write here your API key if you are a registered user
 # the API can be found on you page on the COAT data portal (log in and click on your name in the upper right corner of the page)
 # The use of an API key is necessary to create a package
 
-ckanr_setup(url = COAT_url, key = COAT_key)
+ckanr_setup(url = COAT_url, key = if (COAT_key == "") NULL else COAT_key)
 
 ## specify the name and th version of the dataset you want to upload files to
 package_list(as = "table")  # list all available datasets
