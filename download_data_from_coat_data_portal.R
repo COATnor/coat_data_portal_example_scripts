@@ -9,9 +9,10 @@
 ## This script includes functions and an example for downloading data files from the COAT Data Portal
 ## The data can either be imported to the current R session or saved on your computer
 
-## For downloading private datasets, you need the specify an API key. 
-## After loging in to data.coat.no, the API key can be found by clicking on your name in the top right corner. Copy the API key in the bottom left corner.
-## The API key is private and should not be shared with others.
+## For downloading private datasets, you need to specify an API token.
+## CKAN no longer issues API keys. Log in to data.coat.no, click your name in the top
+## right corner and create one under "Manage" -> "API tokens".
+## The API token is private and should not be shared with others.
 
 ## The development version of the ckanr package has to be installed (remotes::install_github("ropensci/ckanr")), 
 ## For downloading parquet files, this development version hast to be installed (remotes::install_github("hannaboe/ckanr")).
@@ -33,10 +34,10 @@ if (FALSE) {  # ignore this (prevents running the example when sourcing the scri
   ## get functions for downloading data from the COAT Data Portal from GitHub (functions from this script)
   source("https://github.com/COATnor/data_management_scripts/blob/master/download_data_from_coat_data_portal.R?raw=TRUE")
   
-  ## set up the connection to the COAT Data Portal (this is where you need your API key from data.coat.no)
+  ## set up the connection to the COAT Data Portal (this is where you need your API token from data.coat.no)
   ckanr::ckanr_setup(url =  "https://data.coat.no", 
-                     key = NULL)  # replace NULL with your API key (e.g. "asdf123af123") for downloading private datasets or datasets under embargo, without API key, only public datasets will be listed
-  # the API key can be found by clicking on your name in the top right corner on data.coat.no
+                     key = NULL)  # replace NULL with your API token (e.g. "asdf123af123") for downloading private datasets, without an API token only public datasets will be listed
+  # the API token is created under "Manage" -> "API tokens" on your user page on data.coat.no
   
   ## list all modules (optional)
   ckanr::organization_list(as = "table")$name
