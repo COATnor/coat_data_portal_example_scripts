@@ -14,8 +14,12 @@
 ## right corner and create one under "Manage" -> "API tokens".
 ## The API token is private and should not be shared with others.
 
-## The development version of the ckanr package has to be installed (remotes::install_github("ropensci/ckanr")), 
-## For downloading parquet files, this development version hast to be installed (remotes::install_github("hannaboe/ckanr")).
+## IMPORTANT - ckanr must be the version from 2025-11-13 or later.
+## Older versions of ckanr sent only the "X-CKAN-API-Key" header, which CKAN 2.10 and
+## later ignore. Such a version silently talks to the portal as an anonymous user and
+## every private dataset fails with 403, without any error message. Reinstall (or update)
+## even if ckanr is already installed, then run the check in the example below.
+remotes::install_github("ropensci/ckanr", upgrade = "always")
 
 ## You can first list all COAT modules and then list all datasets of the selected module
 ## From this list you can select the datasets you want to download, list all files belonging to the dataset and select the files you want to download
@@ -28,16 +32,37 @@
 if (FALSE) {  # ignore this (prevents running the example when sourcing the script)
   
   ## load libraries (missing libraries will be installed)
-  if (!require("ckanr")) remotes::install_github("ropensci/ckanr"); library("ckanr")
+  ## ckanr 0.7.0 on CRAN (2023-03-17) sends only X-CKAN-API-Key, which CKAN 2.10 and later
+  ## ignore, so an installed ckanr is usually too old. Reinstall unless this one can
+  ## authenticate - "auth_headers" is what sends the Authorization header.
+  if (!require("ckanr") || !("auth_headers" %in% ls(asNamespace("ckanr")))) {
+    remotes::install_github("ropensci/ckanr", upgrade = "always")
+  }
+  library("ckanr")
   if (!require("tidyverse")) install.packages("tidyverse"); library("tidyverse")
   
   ## get functions for downloading data from the COAT Data Portal from GitHub (functions from this script)
   source("https://github.com/COATnor/data_management_scripts/blob/master/download_data_from_coat_data_portal.R?raw=TRUE")
   
   ## set up the connection to the COAT Data Portal (this is where you need your API token from data.coat.no)
+  COAT_key <- ""  # paste your API token here, or leave "" to only read public datasets
   ckanr::ckanr_setup(url =  "https://data.coat.no", 
-                     key = NULL)  # replace NULL with your API token (e.g. "asdf123af123") for downloading private datasets, without an API token only public datasets will be listed
+                     key = if (COAT_key == "") NULL else COAT_key)
   # the API token is created under "Manage" -> "API tokens" on your user page on data.coat.no
+  
+  ## Check that authentication actually works. A ckanr older than 2025-11-13 sends only
+  ## the ignored "X-CKAN-API-Key" header and every private dataset then fails with 403
+  ## without any error message, so check for it explicitly here.
+  if (nchar(ckanr::get_default_key()) > 0) {
+    stopifnot(
+      "Your ckanr does not send an Authorization header - it is too old to authenticate.
+       Reinstall it with remotes::install_github('ropensci/ckanr', upgrade = 'always')"
+        = "Authorization" %in% names(ckanr:::auth_headers(ckanr::get_default_key()))
+    )
+    ckanr:::auth_headers(ckanr::get_default_key())  # must show Authorization = "<your token>"
+  } else {
+    message("No API token set - only public datasets will be listed.")
+  }
   
   ## list all modules (optional)
   ckanr::organization_list(as = "table")$name
