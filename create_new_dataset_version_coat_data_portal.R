@@ -22,8 +22,9 @@ COAT_url <- "https://data.coat.no"  # write here the url to the COAT data portal
 COAT_key <- Sys.getenv("API_coat")  # save you API as an environmental variable
 # write here your API key if you are a registered user
 
-# the API can be found on you page on the COAT data portal (log in and click on your name in the upper right corner of the page)
-# The use of an API key is necessary to create a package
+# CKAN no longer issues API keys. Create an API token on your user page on the COAT data portal
+# (log in, click your name, then "Manage" -> "API tokens") and paste it into COAT_key above.
+# An API token is necessary to create a package
 
 ckanr_setup(url = COAT_url, key = COAT_key)
 
