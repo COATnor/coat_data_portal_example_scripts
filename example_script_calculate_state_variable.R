@@ -34,8 +34,9 @@ if (!require("lubridate")) install.packages("tidyverse"); library("lubridate")
 ## setup the connection to the data portal
 COAT_url <- "https://data.coat.no/" # write here the url to the COAT data portal
 COAT_key <- Sys.getenv("API_coat") # write here your API key if you are a registered user, continue without API key if you are not registered
-# the API can be found on you page on the COAT data portal (log in and click on your name in the upper right corner of the page)
-# The use of an API key allows the user to access also non-public data
+# CKAN no longer issues API keys. Create an API token on your user page on the COAT data portal
+# (log in, click your name, then "Manage" -> "API tokens") and paste it into COAT_key above.
+# An API token is required to access non-public data
 
 ckanr_setup(url = COAT_url, key = COAT_key) # set up the ckanr-API
 

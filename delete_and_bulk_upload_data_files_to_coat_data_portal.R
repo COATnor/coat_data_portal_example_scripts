@@ -22,12 +22,13 @@ source("https://github.com/COATnor/data_management_scripts/blob/master/download_
 
 ## set up the connection to the COAT data portal
 COAT_url <- "https://data.coat.no"  # write here the url to the COAT data portal
-COAT_key <- ""  # write here your API key if you are a registered user
+COAT_key <- ""  # paste your API token here (Manage -> API tokens on data.coat.no); leave "" if you only read public data
 
-# the API can be found on you page on the COAT data portal (log in and click on your name in the upper right corner of the page)
-# the use of an API key is necessary to create a package
+# CKAN no longer issues API keys. Create an API token on your user page on the COAT data portal
+# (log in, click your name, then "Manage" -> "API tokens") and paste it into COAT_key above.
+# An API token is necessary to create a package
 
-ckanr_setup(url = COAT_url, key = COAT_key)
+ckanr_setup(url = COAT_url, key = if (COAT_key == "") NULL else COAT_key)
 
 ## ---------------------------------- ##
 ## FIND DATASET FILES TO DELETE
