@@ -8,7 +8,15 @@
 ## then aux and coord file will be uploaded
 ## then all datafiles will be uploaded in a loop
 
-## the developments version of the ckanr package has to be installed (remotes::install_github("ropensci/ckanr"))
+## For uploading data files, you need to specify an API token.
+## CKAN no longer issues API keys. Log in to data.coat.no, click your name in the top
+## right corner and create one under "Manage" -> "API tokens".
+## The API token is private and should not be shared with others.
+
+## IMPORTANT - ckanr must be the version from 2025-11-13 or later.
+## Older versions of ckanr do not work with API tokens 
+## If an older version of ckanr is already installed, 
+## upadate the package with remotes::install_github("ropensci/ckanr", upgrade = "always")
 
 ## ---------------------------------- ##
 ## SETUP ----
@@ -23,13 +31,8 @@ if (!require('ckanr')) remotes::install_github("ropensci/ckanr"); library('ckanr
 
 ## setup the connection to the COAT data portal
 COAT_url <- "https://coatdemo.coat.no/"  # write here the url to the COAT data portal
-COAT_key <- ""  # paste your API token here (Manage -> API tokens on data.coat.no); leave "" if you only read public data
-
-# CKAN no longer issues API keys. Create an API token on your user page on the COAT data portal
-# (log in, click your name, then "Manage" -> "API tokens") and paste it into COAT_key above.
-# An API token is necessary to create a package
-
-ckanr_setup(url = COAT_url, key = if (COAT_key == "") NULL else COAT_key)
+COAT_key <- ""  # paste your API token here (Manage -> API tokens on data.coat.no) or save it as an Environment variable
+ckanr_setup(url = COAT_url, key = COAT_key)
 
 ## specify the name and th version of the dataset you want to upload files to
 package_list(as = "table")  # list all available datasets

@@ -14,8 +14,15 @@
 
 ## The part of the script that calculates the state variable differs for every dataset and has to be adapted
 
-## the development version of the ckanr package has to be installed (remotes::install_github("ropensci/ckanr"))
+## To access private dataload and upload a state variable, you need to specify an API token.
+## CKAN no longer issues API keys. Log in to data.coat.no, click your name in the top
+## right corner and create one under "Manage" -> "API tokens".
+## The API token is private and should not be shared with others.
 
+## IMPORTANT - ckanr must be the version from 2025-11-13 or later.
+## Older versions of ckanr do not work with API tokens 
+## If an older version of ckanr is already installed, 
+## upadate the package with remotes::install_github("ropensci/ckanr", upgrade = "always")
 
 ## ---------------------------------- ##
 ## SETUP
@@ -33,10 +40,7 @@ if (!require("lubridate")) install.packages("tidyverse"); library("lubridate")
 
 ## setup the connection to the data portal
 COAT_url <- "https://data.coat.no/" # write here the url to the COAT data portal
-COAT_key <- Sys.getenv("API_coat") # write here your API key if you are a registered user, continue without API key if you are not registered
-# CKAN no longer issues API keys. Create an API token on your user page on the COAT data portal
-# (log in, click your name, then "Manage" -> "API tokens") and paste it into COAT_key above.
-# An API token is required to access non-public data
+COAT_key <- ""  # paste your API token here (Manage -> API tokens on data.coat.no) or save it as an Environment variable
 
 ckanr_setup(url = COAT_url, key = COAT_key) # set up the ckanr-API
 

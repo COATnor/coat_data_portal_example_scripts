@@ -4,7 +4,15 @@
 
 ## this script can be used to create a new version of a dataset on the COAT data portal
 
-## the development version of the ckanr package has to be installed (remotes::install_github("ropensci/ckanr"))
+## For creating a new version of a dataset, you need to specify an API token.
+## CKAN no longer issues API keys. Log in to data.coat.no, click your name in the top
+## right corner and create one under "Manage" -> "API tokens".
+## The API token is private and should not be shared with others.
+
+## IMPORTANT - ckanr must be the version from 2025-11-13 or later.
+## Older versions of ckanr do not work with API tokens 
+## If an older version of ckanr is already installed, 
+## upadate the package with remotes::install_github("ropensci/ckanr", upgrade = "always")
 
 ## ---------------------------------- ##
 ## SETUP ----
@@ -19,12 +27,7 @@ if (!require('ckanr')) remotes::install_github("ropensci/ckanr"); library('ckanr
 
 ## setup the connection to the COAT data portal
 COAT_url <- "https://data.coat.no"  # write here the url to the COAT data portal
-COAT_key <- Sys.getenv("API_coat")  # save you API as an environmental variable
-# write here your API key if you are a registered user
-
-# CKAN no longer issues API keys. Create an API token on your user page on the COAT data portal
-# (log in, click your name, then "Manage" -> "API tokens") and paste it into COAT_key above.
-# An API token is necessary to create a package
+COAT_key <- ""  # paste your API token here (Manage -> API tokens on data.coat.no) or save it as an Environment variable
 
 ckanr_setup(url = COAT_url, key = COAT_key)
 
